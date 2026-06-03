@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <iostream>
 #include <numeric>
 #include <random>
@@ -12,7 +13,7 @@
 #include <vector>
 
 using namespace std;
-const int NS = 188;
+const int NS = 1024;
 
 int main() {
 	ios::sync_with_stdio(false);
@@ -30,15 +31,18 @@ int main() {
 	vector<vector<int>> c2s(C);
 
 	for(int c = 0; c < C; ++c) {
-		int n, l; // n=1
-		string s;
+		int n;
 		skill[c].fill(0);
-		cin >> Cnames[c] >> n >> s >> l;
-		if(!s2i.count(s)) s2i[s] = s2i.size();
-		skill[c][s2i[s]] = l;
-		ts[c] += l;
-		s2c[s2i[s]].push_back(c);
-		c2s[c].push_back(s2i[s]);
+		cin >> Cnames[c] >> n;
+		while(n--) {
+			string s; int l;
+			cin >> s >> l;
+			if(!s2i.count(s)) s2i[s] = s2i.size();
+			skill[c][s2i[s]] = l;
+			ts[c] += l;
+			s2c[s2i[s]].push_back(c);
+			c2s[c].push_back(s2i[s]);
+		}
 	}
 	cerr << C << ' ' << P << ' ' << s2i.size() << endl;
 	for(int p = 0; p < P; ++p) {
@@ -53,6 +57,11 @@ int main() {
 	}
 
 	int score = 0;
+	if((int)s2i.size() > NS) {
+		cerr << "ERROR: distinct skills (" << s2i.size() << ") exceeds NS=" << NS
+		     << "; increase NS and recompile." << endl;
+		return 1;
+	}
 	vector<pair<int, vector<int>>> sol;
 
 	vector<int> av(C, 0);
@@ -60,11 +69,13 @@ int main() {
 	vector<bool> chosen(C, false);
 	for(int p = 0; p < P; ++p) ps.insert(p);
 	mt19937 mt(42);
+	const auto t0 = chrono::steady_clock::now();
 	const auto ckey = [&](int c, int m, int s, int l) { return make_tuple(max(av[c], m), -skill[c][s], ts[c]); };
 	while(true) {
 		int bestP = -1, bestlvlup = -1, bestEnd = -1;
 		vector<int> bestCS;
 		for(int p : ps) {
+			if(chrono::duration<double>(chrono::steady_clock::now() - t0).count() >= 600.0) { bestP = -1; break; }
 			int beste = -1, besto = -1;
 			vector<int> cs(req[p].size(), 0), cs2;
 			vector<int> ro(req[p].size());

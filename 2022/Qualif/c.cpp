@@ -11,7 +11,7 @@
 #include <vector>
 
 using namespace std;
-const int NS = 200;
+const int NS = 800;
 
 int main() {
 	ios::sync_with_stdio(false);

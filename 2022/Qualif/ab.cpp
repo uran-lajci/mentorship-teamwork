@@ -4,6 +4,10 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
+#include <cstdio>
+#include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <numeric>
 #include <random>
@@ -11,9 +15,9 @@
 #include <vector>
 
 using namespace std;
-const int NS = 36;
+const int NS = 1024;
 
-int main() {
+int main(int argc, char** argv) {
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
 
@@ -49,6 +53,11 @@ int main() {
 		}
 	}
 	cerr << C << ' ' << P << ' ' << s2i.size() << endl;
+	if((int)s2i.size() > NS) {
+		cerr << "ERROR: distinct skills (" << s2i.size() << ") exceeds NS=" << NS
+		     << "; increase NS and recompile." << endl;
+		return 1;
+	}
 
 	const auto fun = [&](int seed) {
 		vector<array<int, NS>> skill0 = skill;
@@ -131,17 +140,42 @@ int main() {
 		return make_pair(score, sol);
 	};
 	
+	// Time budget in seconds (arg 1, default 600 = 10 min) and output path (arg 2).
+	double budget = (argc > 1 ? atof(argv[1]) : 600.0);
+	string outpath = (argc > 2 ? argv[2] : "solution.txt");
+
+	const auto write_sol = [&](const vector<pair<int, vector<int>>> &s) {
+		string tmp = outpath + ".tmp";
+		ofstream out(tmp);
+		out << s.size() << '\n';
+		for(const auto &[p, cs] : s) {
+			out << Pnames[p] << '\n';
+			for(int c : cs) out << Cnames[c] << ' ';
+			out << '\n';
+		}
+		out.close();
+		rename(tmp.c_str(), outpath.c_str());  // atomic: a kill never leaves a half-written file
+	};
+
 	int score = -1;
 	vector<pair<int, vector<int>>> sol;
-	int T = 10000;
-	while(T--) {
-		auto [sc, so] = fun(T);
+	long seed = 0, iters = 0;
+	auto t0 = chrono::steady_clock::now();
+	while(true) {
+		double elapsed = chrono::duration<double>(chrono::steady_clock::now() - t0).count();
+		if(elapsed >= budget) break;
+		auto [sc, so] = fun(seed++);
+		++iters;
 		if(sc > score) {
 			score = sc;
 			sol = move(so);
-			cerr << score << ' ' << T << endl;
+			write_sol(sol);  // persist immediately so the best-so-far is always on disk
+			cerr << "new best " << score << " at " << elapsed << "s (restart " << iters << ")" << endl;
 		}
 	}
+	cerr << "done: " << iters << " restarts, best score " << score
+	     << ", saved to " << outpath << endl;
+
 	cout << sol.size() << endl;
 	for(const auto &[p, cs] : sol) {
 		cout << Pnames[p] << '\n';
