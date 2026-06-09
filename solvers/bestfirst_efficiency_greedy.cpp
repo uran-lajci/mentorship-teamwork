@@ -107,8 +107,15 @@ int main() {
 				sav = r*mav - bestT;
 			} else {
 				array<int, NS> ms; ms.fill(0);
-				cs.reserve(req[p].size());
-				for(auto [s, l] : req[p]) {
+				vector<int> role_order(req[p].size());
+				iota(role_order.begin(), role_order.end(), 0);
+				sort(role_order.begin(), role_order.end(), [&](int i, int j) {
+					return req[p][i].second > req[p][j].second;
+				});
+				cs.assign(req[p].size(), -1);
+				bool fail = false;
+				for(int idx : role_order) {
+					auto [s, l] = req[p][idx];
 					const int l0 = l;
 					if(ms[s] >= l) --l;
 					int best = -1;
@@ -118,15 +125,15 @@ int main() {
 					if(!l) for(int c = 0; c < C; ++c) if(!chosen[c])
 						if(best == -1 || ckey(c, mav, s, l0) < ckey(best, mav, s, l0))
 							best = c;
-					if(best == -1) break;
-					cs.push_back(best);
+					if(best == -1) { fail = true; break; }
+					cs[idx] = best;		
 					for(int s : c2s[best]) ms[s] = max(ms[s], skill[best][s]);
 					chosen[best] = true;
 					sav += av[best];
 					mav = max(mav, av[best]);
 				}
-				for(int c : cs) chosen[c] = false;
-				if(cs.size() < req[p].size()) continue;
+				for(int c : cs) if(c != -1) chosen[c] = false;
+				if(fail) continue;
 			}
 			int end = mav+D[p];
 			double time = cs.size()*end - sav;
