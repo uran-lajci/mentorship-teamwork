@@ -1,7 +1,6 @@
 // Copyright (C) 2026, Coudert--Osmont Yoann
 // SPDX-License-Identifier: MIT
 // Licensed under the MIT License. See LICENSE file in the project root for full license information.
-
 #include <algorithm>
 #include <array>
 #include <iostream>
@@ -10,13 +9,10 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-
 using namespace std;
-
 int main() {
 	ios::sync_with_stdio(false);
 	cin.tie(nullptr);
-
 	int C, P;
 	cin >> C >> P;
 	vector<string> Cnames(C), Pnames(P);
@@ -25,7 +21,6 @@ int main() {
 	vector<int> ts(C, 0);
 	vector<vector<pair<int, int>>> req(P);
 	vector<int> D(P), S(P), B(P);
-
 	for(int c = 0; c < C; ++c) {
 		int n;
 		cin >> Cnames[c] >> n;
@@ -48,9 +43,11 @@ int main() {
 			req[p].emplace_back(s2i[s], l);
 		}
 	}
-
 	int score = 0;
 	vector<pair<int, vector<int>>> sol;
+	int best_score = 0;
+	vector<pair<int, vector<int>>> best_sol;
+	const int NUM_RUNS = 50;
 
 	vector<int> av(C, 0);
 	vector<int> order(P);
@@ -59,6 +56,20 @@ int main() {
 	mt19937 mt;
 	const auto ckey = [&](int c, int m, int s) { return make_tuple(max(av[c], m), skill[c][s], ts[c]); };
 	bool need_lvl = false;
+
+	for (int run = 0; run < NUM_RUNS; ++run) {
+	auto cur_skill = skill;
+	auto cur_ts = ts;
+	av.assign(C, 0);
+	order = vector<int>(P);
+	iota(order.begin(), order.end(), 0);
+	shuffle(order.begin(), order.end(), mt);
+	need_lvl = false;
+	score = 0;
+	sol.clear();
+	chosen.assign(C, false);
+	const auto ckey = [&](int c, int m, int s) { return make_tuple(max(av[c], m), cur_skill[c][s], cur_ts[c]); };
+
 	while(true) {
 		bool bad = true;
 		vector<int> fail;
@@ -71,7 +82,7 @@ int main() {
 			for(auto [s, l] : req[p]) {
 				if(ms[s] >= l) --l;
 				int best = -1;
-				for(int c = 0; c < C; ++c) if(!chosen[c] && skill[c][s] >= l)
+				for(int c = 0; c < C; ++c) if(!chosen[c] && cur_skill[c][s] >= l)
 					if(best == -1 || ckey(c, mav, s) < ckey(best, mav, s))
 						best = c;
 				if(best == -1) break;
@@ -86,17 +97,17 @@ int main() {
 				fail.push_back(p);
 				continue;
 			}
-			for(int i = 1; i < cs.size(); ++i) if(skill[cs[i]][req[p][i].first] > req[p][i].second)
-				for(int j = 0; j < i; ++j) if(skill[cs[j]][req[p][j].first] > req[p][j].second)
-					if(skill[cs[i]][req[p][j].first] >= req[p][j].second-1 && skill[cs[j]][req[p][i].first] >= req[p][i].second-1)
+			for(int i = 1; i < cs.size(); ++i) if(cur_skill[cs[i]][req[p][i].first] > req[p][i].second)
+				for(int j = 0; j < i; ++j) if(cur_skill[cs[j]][req[p][j].first] > req[p][j].second)
+					if(cur_skill[cs[i]][req[p][j].first] >= req[p][j].second-1 && cur_skill[cs[j]][req[p][i].first] >= req[p][i].second-1)
 						swap(cs[i], cs[j]);
 			bool impLvl = false;
 			for(int i = 0; i < cs.size(); ++i) {
 				av[cs[i]] = end;
 				auto [s, l] = req[p][i];
-				if(skill[cs[i]][s] <= l) {
-					++ skill[cs[i]][s];
-					++ ts[cs[i]];
+				if(cur_skill[cs[i]][s] <= l) {
+					++ cur_skill[cs[i]][s];
+					++ cur_ts[cs[i]];
 					impLvl = true;
 				}
 			}
@@ -114,14 +125,19 @@ int main() {
 		}
 		order = fail;
 	}
+	if (score > best_score) {
+		best_score = score;
+		best_sol = std::move(sol);
+	}
+	} // end for run
 
-	cerr << score << endl;
-	cout << sol.size() << endl;
-	for(const auto &[p, cs] : sol) {
+
+	cerr << best_score << endl;
+	cout << best_sol.size() << endl;
+	for(const auto &[p, cs] : best_sol) {
 		cout << Pnames[p] << '\n';
 		for(int c : cs) cout << Cnames[c] << ' ';
 		cout << '\n';
 	}
-
 	return 0;
 }
