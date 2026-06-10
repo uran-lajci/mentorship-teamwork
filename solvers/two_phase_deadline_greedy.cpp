@@ -77,14 +77,18 @@ int main()
 		score = 0;
 		const int NS = s2i.size();
 		const int MAX_LVL = 100; // safe upper bound from problem constraints
-		vector<vector<int>> cnt_ge(NS, vector<int>(MAX_LVL+1, 0));
-		for(int s = 0; s < NS; ++s) {
-			for(int c = 0; c < C; ++c) {
+		vector<vector<int>> cnt_ge(NS, vector<int>(MAX_LVL + 1, 0));
+		for (int s = 0; s < NS; ++s)
+		{
+			for (int c = 0; c < C; ++c)
+			{
 				int lvl = cur_skill[c][s];
-				if(lvl > 0) cnt_ge[s][lvl]++;
+				if (lvl > 0)
+					cnt_ge[s][lvl]++;
 			}
-			for(int l = MAX_LVL; l > 0; --l) {
-				cnt_ge[s][l-1] += cnt_ge[s][l];
+			for (int l = MAX_LVL; l > 0; --l)
+			{
+				cnt_ge[s][l - 1] += cnt_ge[s][l];
 			}
 		}
 		sol.clear();
@@ -152,7 +156,9 @@ int main()
 					auto [s, l] = req[p][i];
 					if (cur_skill[cs[i]][s] <= l)
 					{
+						int old_lvl = cur_skill[cs[i]][s];
 						++cur_skill[cs[i]][s];
+						++cnt_ge[s][old_lvl + 1];
 						++cur_ts[cs[i]];
 						impLvl = true;
 					}
