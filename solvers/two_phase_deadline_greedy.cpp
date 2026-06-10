@@ -94,7 +94,7 @@ int main()
 				vector<int> idx(req[p].size());
 				iota(idx.begin(), idx.end(), 0);
 				sort(idx.begin(), idx.end(), [&](int i, int j)
-					 { return req[p][i].second > req[p][j].second; });
+					 { return make_tuple(req[p][i].second, req[p][i].first) > make_tuple(req[p][j].second, req[p][j].first); });
 				bool failed = false;
 				for (int k = 0; k < idx.size(); ++k)
 				{
