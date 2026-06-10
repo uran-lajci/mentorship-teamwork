@@ -75,6 +75,18 @@ int main()
 		shuffle(order.begin(), order.end(), mt);
 		need_lvl = false;
 		score = 0;
+		const int NS = s2i.size();
+		const int MAX_LVL = 100; // safe upper bound from problem constraints
+		vector<vector<int>> cnt_ge(NS, vector<int>(MAX_LVL+1, 0));
+		for(int s = 0; s < NS; ++s) {
+			for(int c = 0; c < C; ++c) {
+				int lvl = cur_skill[c][s];
+				if(lvl > 0) cnt_ge[s][lvl]++;
+			}
+			for(int l = MAX_LVL; l > 0; --l) {
+				cnt_ge[s][l-1] += cnt_ge[s][l];
+			}
+		}
 		sol.clear();
 		chosen.assign(C, false);
 		const auto ckey = [&](int c, int m, int s)
@@ -94,7 +106,7 @@ int main()
 				vector<int> idx(req[p].size());
 				iota(idx.begin(), idx.end(), 0);
 				sort(idx.begin(), idx.end(), [&](int i, int j)
-					 { return make_tuple(req[p][i].second, req[p][i].first) > make_tuple(req[p][j].second, req[p][j].first); });
+					 { return make_tuple(cnt_ge[req[p][i].first][req[p][i].second], -req[p][i].second, req[p][i].first) < make_tuple(cnt_ge[req[p][j].first][req[p][j].second], -req[p][j].second, req[p][j].first); });
 				bool failed = false;
 				for (int k = 0; k < idx.size(); ++k)
 				{
