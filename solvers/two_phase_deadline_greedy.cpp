@@ -73,8 +73,7 @@ int main() {
 	while(true) {
 		bool bad = true;
 		vector<int> fail;
-		if(need_lvl) sort(order.begin(), order.end(), [&](int a, int b) { return S[a]+B[a]-D[a] > S[b]+B[b]-D[b]; });
-		else sort(order.begin(), order.end(), [&](int a, int b) { return B[a]-D[a] < B[b]-D[b]; });
+		sort(order.begin(), order.end(), [&](int a, int b) { return B[a]-D[a] < B[b]-D[b]; });
 		for(int p : order) {
 			int mav = 0;
 			vector<int> cs;
