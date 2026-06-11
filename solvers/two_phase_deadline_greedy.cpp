@@ -123,6 +123,8 @@ int main()
 						if (!chosen[c] && cur_skill[c][s] >= l)
 							if (best == -1 || ckey(c, mav, s) < ckey(best, mav, s))
 								best = c;
+							else if (ckey(c, mav, s) == ckey(best, mav, s) && (mt() & 1))
+								best = c;
 					if (best == -1)
 					{
 						failed = true;
