@@ -56,7 +56,7 @@ int main()
 	vector<pair<int, vector<int>>> sol;
 	int best_score = 0;
 	vector<pair<int, vector<int>>> best_sol;
-	const int NUM_RUNS = 50;
+	const int NUM_RUNS = 200;
 	vector<int> av(C, 0);
 	vector<int> order(P);
 	vector<bool> chosen(C, false);
