@@ -74,7 +74,9 @@ int main()
 		bool bad = true;
 		vector<int> fail;
 		sort(order.begin(), order.end(), [&](int a, int b)
-			 { return (long long)S[b] * D[a] * req[a].size() < (long long)S[a] * D[b] * req[b].size(); });
+			 { if ((long long)S[a] * D[b] != (long long)S[b] * D[a])
+			       return (long long)S[a] * D[b] > (long long)S[b] * D[a];
+			   return a < b; });
 		for (int p : order)
 		{
 			int beste = -1, besto = -1;
