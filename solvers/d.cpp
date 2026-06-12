@@ -68,7 +68,7 @@ int main()
 	iota(order.begin(), order.end(), 0);
 	mt19937 mt(42);
 	const auto ckey = [&](int c, int m, int s, int l)
-	{ return make_tuple(max(av[c], m), skill[c][s], ts[c]); };
+	{ return make_tuple(max(av[c], m), skill[c][s] > l ? 1 : 0, skill[c][s], ts[c]); };
 	while (true)
 	{
 		bool bad = true;
