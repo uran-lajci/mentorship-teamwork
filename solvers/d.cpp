@@ -124,7 +124,7 @@ int main()
 									swap(cs[i], cs[j]);
 									oo += 2;
 								}
-				oo += 1000000 - mav;
+				oo += 1000000 - mav - 10 * max(0, mav + D[p] - B[p]);
 				if (oo > besto)
 				{
 					besto = oo;
