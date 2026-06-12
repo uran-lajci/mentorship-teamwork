@@ -11,7 +11,7 @@
 #include <vector>
 
 using namespace std;
-const int NS = 800;
+const int NS = 10000;
 
 int main()
 {
