@@ -133,7 +133,7 @@ int main()
 				}
 			}
 			int end = beste;
-			if (cs2.empty() || end >= B[p] + S[p])
+			if (cs2.empty())
 			{
 				fail.push_back(p);
 				continue;
