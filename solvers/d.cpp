@@ -113,7 +113,7 @@ int main()
 				for (int c : cs)
 					chosen[c] = false;
 				int end = mav + D[p];
-				if (nr || end >= B[p] + S[p])
+				if (nr)
 					continue;
 				for (int i = 1; i < cs.size(); ++i)
 					if (skill[cs[i]][req[p][i].first] > req[p][i].second)
